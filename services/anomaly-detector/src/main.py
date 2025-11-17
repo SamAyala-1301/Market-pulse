@@ -4,6 +4,9 @@ import structlog
 from prometheus_client import start_http_server, Counter, Gauge, Histogram, Info
 from database import SessionLocal, test_connection, fetch_stock_data, save_anomalies
 from detectors.zscore_detector import ZScoreDetector
+from detectors.iqr_detector import IQRDetector
+from detectors.isolation_forest_detector import IsolationForestDetector
+from detectors.moving_average_detector import MovingAverageDetector
 from config import settings
 
 # Configure structured logging
@@ -51,28 +54,28 @@ class AnomalyDetectionService:
     """Main anomaly detection service"""
     
     def __init__(self):
-        # Initialize detectors
+    # Initialize ALL detectors
         self.detectors = [
-            ZScoreDetector(
-                threshold=settings.zscore_threshold,
-                window=settings.rolling_window
-            )
-        ]
-        
+        ZScoreDetector(threshold=2.5, window=30),  # Lowered threshold
+        IQRDetector(multiplier=1.5, window=30),
+        IsolationForestDetector(contamination=0.1, n_estimators=100),
+        MovingAverageDetector(window=20, threshold_pct=5.0)
+    ]
+    
         self.running = False
-        
-        # Set service info
+    
+    # Set service info
         service_info.info({
-            'version': '1.0.0',
-            'detectors_count': str(len(self.detectors)),
-            'symbols_count': str(len(settings.symbols))
-        })
-        
+        'version': '1.1.0',
+        'detectors_count': str(len(self.detectors)),
+        'symbols_count': str(len(settings.symbols))
+    })
+    
         logger.info(
-            "Initialized AnomalyDetectionService",
-            detectors=[d.name for d in self.detectors],
-            symbols_count=len(settings.symbols)
-        )
+        "Initialized AnomalyDetectionService",
+        detectors=[d.name for d in self.detectors],
+        symbols_count=len(settings.symbols)
+    )
     
     def detect_for_symbol(self, db, symbol: str) -> int:
         """

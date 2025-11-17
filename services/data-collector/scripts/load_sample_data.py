@@ -34,10 +34,11 @@ def generate_stock_data(symbol, days=365, initial_price=100):
     
     df = pd.DataFrame(data)
     
-    # Add 5 anomalies per stock
-    anomaly_indices = np.random.choice(len(df)-10, size=5, replace=False) + 5
+    # Add 10 anomalies per stock
+    anomaly_indices = np.random.choice(len(df)-10, size=10, replace=False) + 5
     for idx in anomaly_indices:
-        df.loc[idx, 'close'] *= np.random.choice([0.88, 1.12])  # ±12% spike
+    # Bigger moves: ±15-20%
+        df.loc[idx, 'close'] *= np.random.choice([0.80, 0.85, 1.15, 1.20])
     
     return df
 

@@ -1,13 +1,6 @@
 apiVersion: 1
 
 datasources:
-  - name: Prometheus
-    type: prometheus
-    access: proxy
-    url: http://prometheus:9090
-    isDefault: true
-    editable: true
-
   - name: PostgreSQL
     type: postgres
     access: proxy
@@ -15,8 +8,17 @@ datasources:
     database: marketpulse
     user: mpuser
     secureJsonData:
-      password: mppass123
+      password: 'mppass123'
     jsonData:
-      sslmode: disable
+      sslmode: 'disable'
       postgresVersion: 1500
+      timescaledb: false
+    editable: true
+    isDefault: true
+
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: false
     editable: true
