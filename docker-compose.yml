@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   postgres:
@@ -68,6 +68,57 @@ services:
     networks:
       - marketpulse
 
+  data-collector:
+    build:
+      context: ./services/data-collector
+      dockerfile: Dockerfile
+    container_name: marketpulse-data-collector
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=marketpulse
+      - POSTGRES_USER=mpuser
+      - POSTGRES_PASSWORD=mppass123
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - METRICS_PORT=8001
+      - LOG_LEVEL=INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    networks:
+      - marketpulse
+    restart: unless-stopped
+
+
+  anomaly-detector:
+    build:
+      context: ./services/anomaly-detector
+      dockerfile: Dockerfile
+    container_name: marketpulse-anomaly-detector
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=marketpulse
+      - POSTGRES_USER=mpuser
+      - POSTGRES_PASSWORD=mppass123
+      - METRICS_PORT=8002
+      - LOG_LEVEL=INFO
+      - ZSCORE_THRESHOLD=3.0
+      - ROLLING_WINDOW=30
+      - LOOKBACK_DAYS=60
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8002:8002"
+    networks:
+      - marketpulse
+    restart: unless-stopped
 volumes:
   postgres_data:
   redis_data:

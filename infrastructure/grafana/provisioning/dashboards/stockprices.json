@@ -1,0 +1,40 @@
+{
+  "dashboard": {
+    "title": "MarketPulse - Stock Prices & Anomalies",
+    "tags": ["marketpulse", "stocks"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Stock Prices (PostgreSQL)",
+        "type": "timeseries",
+        "gridPos": {"h": 12, "w": 24, "x": 0, "y": 0},
+        "datasource": "PostgreSQL",
+        "targets": [
+          {
+            "rawSql": "SELECT timestamp as time, close as value, symbol FROM stock_prices WHERE symbol IN ('AAPL', 'GOOGL', 'MSFT') ORDER BY timestamp",
+            "format": "time_series",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Recent Anomalies",
+        "type": "table",
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12},
+        "datasource": "PostgreSQL",
+        "targets": [
+          {
+            "rawSql": "SELECT symbol, timestamp, anomaly_type, method, ROUND(score::numeric, 2) as score, details->>'daily_return' as daily_return FROM anomalies ORDER BY timestamp DESC LIMIT 50",
+            "format": "table",
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "refresh": "1m",
+    "schemaVersion": 27,
+    "version": 1
+  }
+}
