@@ -7,6 +7,8 @@ from detectors.zscore_detector import ZScoreDetector
 from detectors.iqr_detector import IQRDetector
 from detectors.isolation_forest_detector import IsolationForestDetector
 from detectors.moving_average_detector import MovingAverageDetector
+from detectors.volume_detector import VolumeAnomalyDetector
+from detectors.technical_indicators_detector import TechnicalIndicatorsDetector
 from config import settings
 
 # Configure structured logging
@@ -56,10 +58,12 @@ class AnomalyDetectionService:
     def __init__(self):
     # Initialize ALL detectors
         self.detectors = [
-        ZScoreDetector(threshold=2.5, window=30),  # Lowered threshold
+        ZScoreDetector(threshold=2.5, window=30),
         IQRDetector(multiplier=1.5, window=30),
         IsolationForestDetector(contamination=0.1, n_estimators=100),
-        MovingAverageDetector(window=20, threshold_pct=5.0)
+        MovingAverageDetector(window=20, threshold_pct=5.0),
+        VolumeAnomalyDetector(threshold=3.0, window=20),
+        TechnicalIndicatorsDetector(rsi_period=14, bb_period=20, bb_std=2.0)
     ]
     
         self.running = False

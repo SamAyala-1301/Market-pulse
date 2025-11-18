@@ -1,0 +1,53 @@
+# Default values for marketpulse
+
+replicaCount: 1
+
+image:
+  repository: marketpulse
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+service:
+  type: ClusterIP
+  api:
+    port: 8000
+  grafana:
+    port: 3000
+  prometheus:
+    port: 9090
+
+postgres:
+  enabled: true
+  image: postgres:15-alpine
+  database: marketpulse
+  username: mpuser
+  password: mppass123
+  storage: 10Gi
+
+redis:
+  enabled: true
+  image: redis:7-alpine
+  storage: 1Gi
+
+dataCollector:
+  enabled: true
+  schedule: "0 17 * * *"  # 5 PM daily
+
+anomalyDetector:
+  enabled: true
+  schedule: "0 18 * * *"  # 6 PM daily
+  detectors:
+    - zscore
+    - iqr
+    - isolation_forest
+    - moving_average
+    - volume_anomaly
+    - technical_indicators
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi

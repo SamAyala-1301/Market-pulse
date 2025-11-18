@@ -119,6 +119,20 @@ services:
     networks:
       - marketpulse
     restart: unless-stopped
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+    container_name: marketpulse-api
+    environment:
+      - DATABASE_URL=postgresql://mpuser:mppass123@postgres:5432/marketpulse
+    depends_on:
+      - postgres
+    ports:
+      - "8000:8000"
+    networks:
+      - marketpulse
+    restart: unless-stopped
 volumes:
   postgres_data:
   redis_data:
